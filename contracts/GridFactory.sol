@@ -71,6 +71,7 @@ contract GridFactory {
     cell[] dummyCellList;
 
     event TableCreated(uint indexed _arrIndex, string _name, uint _tableId);
+    event ColumnCreated(string _colName);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
@@ -177,36 +178,31 @@ contract GridFactory {
         }
     }
 
-    function createColumn(
-        string memory _columnName, DataType _dataType, Constraint _constraint, uint _tableId) private returns (uint columnId){
+    function _createColumn(
+        string memory _columnName, DataType _dataType, Constraint _constraint, uint _tableId) public returns (uint columnId){
         
         //columnId = _generateRandomId(_columnName);
         
         poolTable[_tableId].columnNameList.push(_columnName);
-        
-        //cell[] memory celList;
-        //dummyCellList=new cell[];
 
+        /*
         workingColumn = column(
             _columnName,
             _dataType,
             _constraint,
-            dummyCellList
-        );
-
-        /*
-        column memory col = column(
-            _columnName,
-            _dataType,
-            _constraint,
-            celList
+            dummy
         );
         */
-        
-        
-        // Assign Column to Table
-        poolTable[_tableId].columnList.push(workingColumn);
+        workingColumn.name=_columnName;
+        workingColumn.datatype=_dataType;
+        workingColumn.constraint=_constraint;
 
+        column storage col = workingColumn;
+
+        // Assign Column to Table
+        poolTable[_tableId].columnList.push(col);
+
+        emit ColumnCreated(workingColumn.name);
         return poolTable[_tableId].columnNameList.length;
 
     }

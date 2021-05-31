@@ -1,4 +1,4 @@
-TRun this commnad to test/deploy
+Run this commnad to test/deploy
 Step
 truffle init
 truffle compile

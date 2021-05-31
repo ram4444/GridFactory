@@ -10,6 +10,7 @@ const catchRevert = require("./helpers/utils").catchRevert;
 const time = require("./helpers/time");
 
 const tableNames = ["table1", "table2"];
+const columnNames = ["column1", "column2"];
 
 //Run 
 //truffle test
@@ -69,8 +70,9 @@ contract("GridFactory", (accounts) => {
         expect(result.receipt.status).to.equal(true);
         expect(result.logs[0].args._name).to.equal(tableNames[0]);
         // Create a column and assign to table
-        const result2 = await contractInstance.createColumn(
-            "ColString1", "string", "noConstraint", result.logs[0].args._tableId);
+        const result2 = await contractInstance._createColumn(
+            columnNames[0], 0, 0, result.logs[0].args._tableId);
+        expect(result2.logs[0].args._colName).to.equal(columnNames[0]);
     })
     /*
     context("with the single-step transfer scenario", async () => {
