@@ -58,7 +58,7 @@ contract GridFactory {
         string name;
         column[] columnList;
         string[] columnNameList;
-        
+        uint lastColumnIndex;
     }
     
 
@@ -70,8 +70,10 @@ contract GridFactory {
     column[] dummyColumnList;
     cell[] dummyCellList;
 
-    event TableCreated(uint indexed _arrIndex, string _name, uint _tableId);
-    event ColumnCreated(string _colName);
+    event TableCreated(uint indexed _arrIndex, string _name, uint indexed _tableId);
+    event TableOwner(address _address);
+    event ColumnCreated(uint _tableId, string _tableName, string _colName, uint _colId);
+    event TestEvent(uint _testValue);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
@@ -84,14 +86,20 @@ contract GridFactory {
     
     
     // Util------------------------------------------------------------------------
-    function _generateRandomId(string memory _str) private pure returns (uint) {
+    function _generateRandomId(string memory _str, uint digit) private pure returns (uint) {
         uint rand = uint(keccak256(abi.encodePacked(_str)));
-        return rand;
+        return rand % (10 ** digit);
     }
 
     enum DataType{ STRING, DEC, INT, TIMESTAMP, BYTE, BOOL, ADDR }
     enum Constraint{ NONE, UNIQ }
     //FreshJuiceSize constant defaultChoice = FreshJuiceSize.MEDIUM;
+
+    
+    function _testEmitUint(uint _value) public returns (string memory _test) {
+        emit TestEvent(_value);
+        return "OK";
+    }
 
     // Table-----------------------------------------------------------------------
     
@@ -101,7 +109,8 @@ contract GridFactory {
     }
 
     // Get Table Owner by Table ID
-    function _getTableOwnerbyId(uint _tabId) public view returns (address addr){
+    function _getTableOwnerbyId(uint _tabId) public returns (address addr){
+        emit TableOwner(arr_table_ownerAddr[poolTable[_tabId].arrIndex]);
         return arr_table_ownerAddr[poolTable[_tabId].arrIndex];
     }
 
@@ -139,25 +148,18 @@ contract GridFactory {
         }
         require(tableNameNotExist,'Table exists');
         
-        uint tableId = _generateRandomId(tableName);
+        uint tableId = _generateRandomId(tableName, 8);
 
         arr_table_tableId.push(tableId);
         uint arrIndex = arr_table_tableId.length;
         arr_table_ownerAddr.push(ownerAddress);
 
-        //Copying of type struct GridFactory.column memory[] memory to storage not yet supported.
-        //table memory _tbl;
-        //_tbl.arrIndex=arrIndex;
-        //_tbl.name=tableName;
-        //poolTable[tableId]=_tbl;
+        poolTable[tableId].lastColumnIndex=0;
+        poolTable[tableId].arrIndex=arrIndex;
+        poolTable[tableId].name=tableName;
 
-        workingTable.arrIndex=arrIndex;
-        workingTable.name=tableName;
-        table storage tbl = workingTable;
-        poolTable[tableId]=tbl;
-
-        emit TableCreated(workingTable.arrIndex, workingTable.name, tableId);
-        return tableId;
+        emit TableCreated(poolTable[tableId].arrIndex, poolTable[tableId].name, arr_table_tableId[arr_table_tableId.length-1]);
+        return arr_table_tableId[arr_table_tableId.length-1];
     }
     
     
@@ -165,7 +167,12 @@ contract GridFactory {
     // Column----------------------------------------------------------------------
     
     // Get Column Name by Id
-    function _getColumnNamebyId(uint _tableId, uint _colId) public view returns (string memory name){
+    function _getColumnNamebyId(uint _tableId, uint _colId) public returns (string memory name){
+        emit ColumnCreated(
+            _tableId,
+            poolTable[_tableId].name,
+            poolTable[_tableId].columnNameList[_colId],
+            _colId);
         return poolTable[_tableId].columnList[_colId].name;
     }
 
@@ -181,18 +188,9 @@ contract GridFactory {
     function _createColumn(
         string memory _columnName, DataType _dataType, Constraint _constraint, uint _tableId) public returns (uint columnId){
         
-        //columnId = _generateRandomId(_columnName);
-        
         poolTable[_tableId].columnNameList.push(_columnName);
 
-        /*
-        workingColumn = column(
-            _columnName,
-            _dataType,
-            _constraint,
-            dummy
-        );
-        */
+        
         workingColumn.name=_columnName;
         workingColumn.datatype=_dataType;
         workingColumn.constraint=_constraint;
@@ -201,9 +199,21 @@ contract GridFactory {
 
         // Assign Column to Table
         poolTable[_tableId].columnList.push(col);
+        
+        //poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].name=_columnName;
+        //poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].datatype=_dataType;
+        //poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].constraint=_constraint;
+        
+        
 
-        emit ColumnCreated(workingColumn.name);
-        return poolTable[_tableId].columnNameList.length;
+        emit ColumnCreated(
+            _tableId,
+            poolTable[_tableId].name,
+            poolTable[_tableId].columnNameList[poolTable[_tableId].lastColumnIndex],
+            poolTable[_tableId].lastColumnIndex);
+        
+        poolTable[_tableId].lastColumnIndex++;
+        return poolTable[_tableId].lastColumnIndex-1;
 
     }
     
