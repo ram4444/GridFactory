@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
+pragma experimental ABIEncoderV2;
 
 //import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -51,6 +52,7 @@ contract GridFactory {
         DataType datatype;
         Constraint constraint;
         cell[] cellList;
+        uint lastCellIndex;
     }
     
     struct table {
@@ -73,6 +75,15 @@ contract GridFactory {
     event TableCreated(uint indexed _arrIndex, string _name, uint indexed _tableId);
     event TableOwner(address _address);
     event ColumnCreated(uint _tableId, string _tableName, string _colName, uint _colId);
+    event CellInserted(
+        uint _tableId, 
+        string _tableName, 
+        string _colName,
+        uint _index, 
+        uint _colId, 
+        string _cellValue);
+    event CellList(cell[] _cellList);
+    event ColumnList(column[] _columnList);
     event TestEvent(uint _testValue);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
@@ -190,7 +201,7 @@ contract GridFactory {
         
         poolTable[_tableId].columnNameList.push(_columnName);
 
-        
+        workingColumn.lastCellIndex=0;
         workingColumn.name=_columnName;
         workingColumn.datatype=_dataType;
         workingColumn.constraint=_constraint;
@@ -210,28 +221,51 @@ contract GridFactory {
             _tableId,
             poolTable[_tableId].name,
             poolTable[_tableId].columnNameList[poolTable[_tableId].lastColumnIndex],
-            poolTable[_tableId].lastColumnIndex);
+            poolTable[_tableId].lastColumnIndex
+        );
         
         poolTable[_tableId].lastColumnIndex++;
         return poolTable[_tableId].lastColumnIndex-1;
 
     }
+
+    function _listTableColumns(uint _tableId) public returns (column[] memory colList){
+        emit ColumnList(poolTable[_tableId].columnList);
+        return poolTable[_tableId].columnList;
+    }
+    
     
 
     // Cell------------------------------------------------------------------------
-    /*
+    
     // Create cell and assign value
-    function createCell(string memory _value, uint _columnId, uint _tableId) public returns (uint cellId){
-        cellId = _generateRandomId(_value);
+    function _createCell(string memory _value, uint _columnId, uint _tableId) public returns (uint cellId){
 
         cell memory cel = cell(
             _value
         );
         
         // Assign cell to Column
-        poolTable[_tableId].cloumnList[_columnId].cellList.push(cel);
+        uint last = poolTable[_tableId].columnList[_columnId].lastCellIndex;
+        poolTable[_tableId].columnList[_columnId].cellList.push(cel);
+        
+        emit CellInserted(
+            _tableId,
+            poolTable[_tableId].name,
+            poolTable[_tableId].columnList[_columnId].name,
+            poolTable[_tableId].columnList[_columnId].lastCellIndex,
+            _columnId, 
+            poolTable[_tableId].columnList[_columnId].cellList[last].value);
+        
+        poolTable[_tableId].columnList[_columnId].lastCellIndex=last+1;
 
-        return cellId;
+        return poolTable[_tableId].columnList[_columnId].lastCellIndex-1;
+    }
+
+    // Get Every cells of a column
+    function _listColumnCells(uint _columnId, uint _tableId) public returns (cell[] memory cellList){
+        emit CellList(poolTable[_tableId].columnList[_columnId].cellList);
+        return poolTable[_tableId].columnList[_columnId].cellList;
     }
 
     // Update cell value by Id
@@ -245,7 +279,7 @@ contract GridFactory {
         //return _value;
     //}
 
-    */
+    
 
 
 

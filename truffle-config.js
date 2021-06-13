@@ -91,7 +91,7 @@ module.exports = {
       host: "127.0.0.1",
       port: 7545,
       network_id: "5777",
-      from: '0x769EE84410b026388ed40B7c83bb365aBd66a1f7',
+      from: '0xD64e6DD390e2EbFDba65dAe8D38642A2F23dbc0F',
       gas: 3000023
     },
     // Configuration for mainnet
