@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity >=0.8.5 <0.9.0;
+//pragma solidity >=0.8.0 <0.9.0;
 pragma experimental ABIEncoderV2;
 
 //import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -74,7 +75,7 @@ contract GridFactory {
 
     event TableCreated(uint indexed _arrIndex, string _name, uint indexed _tableId);
     event TableOwner(address _address);
-    event ColumnCreated(uint _tableId, string _tableName, string _colName, uint _colId);
+    event ColumnCreated(uint _tableId, string _tableName, string _colNameListValue, string _colNameInColumn, uint _colId);
     event CellInserted(
         uint _tableId, 
         string _tableName, 
@@ -84,7 +85,10 @@ contract GridFactory {
         string _cellValue);
     event CellList(cell[] _cellList);
     event ColumnList(column[] _columnList);
-    event TestEvent(uint _testValue);
+    event Column(column _column);
+    //event TableColumnCellList(column[] _columnList);
+    event TestUint(string _desc, uint _value);
+    event TestStr(string _desc, string _value);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
     //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
@@ -108,7 +112,7 @@ contract GridFactory {
 
     
     function _testEmitUint(uint _value) public returns (string memory _test) {
-        emit TestEvent(_value);
+        emit TestUint("test",_value);
         return "OK";
     }
 
@@ -173,7 +177,6 @@ contract GridFactory {
         return arr_table_tableId[arr_table_tableId.length-1];
     }
     
-    
 
     // Column----------------------------------------------------------------------
     
@@ -183,6 +186,7 @@ contract GridFactory {
             _tableId,
             poolTable[_tableId].name,
             poolTable[_tableId].columnNameList[_colId],
+            poolTable[_tableId].columnList[_colId].name,
             _colId);
         return poolTable[_tableId].columnList[_colId].name;
     }
@@ -199,32 +203,75 @@ contract GridFactory {
     function _createColumn(
         string memory _columnName, DataType _dataType, Constraint _constraint, uint _tableId) public returns (uint columnId){
         
+        
         poolTable[_tableId].columnNameList.push(_columnName);
 
+        // Methcd 1: Directly assign by =
+        
         workingColumn.lastCellIndex=0;
         workingColumn.name=_columnName;
         workingColumn.datatype=_dataType;
         workingColumn.constraint=_constraint;
-
         column storage col = workingColumn;
+        
+
+        // Method 2: New a Struct
+        /*
+        //dummyCellList = cell[]();
+        workingColumn = column(
+            _columnName,
+            _dataType,
+            _constraint,
+            dummyCellList,
+            0
+        );
+        column memory col = workingColumn;
+        */
 
         // Assign Column to Table
         poolTable[_tableId].columnList.push(col);
-        
+        // Assign Value has no effect for the 2nd call
+        //poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].lastCellIndex=0;
         //poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].name=_columnName;
         //poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].datatype=_dataType;
         //poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].constraint=_constraint;
         
-        
+        // Method2
+        /*
+        //cell storage cel = cell("dummy");
+        cell[] storage list;
+        //list.push(cel);
 
+        //column storage col = mCol;
+
+        poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex]=column(
+            _columnName,
+            _dataType,
+            _constraint,
+            list,
+            0);
+        */
+
+        
+        
+        
+        // ALL correct for method 1
         emit ColumnCreated(
             _tableId,
             poolTable[_tableId].name,
             poolTable[_tableId].columnNameList[poolTable[_tableId].lastColumnIndex],
+            poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].name,
             poolTable[_tableId].lastColumnIndex
         );
-        
-        poolTable[_tableId].lastColumnIndex++;
+
+        emit Column(poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex]);
+
+        emit ColumnList(poolTable[_tableId].columnList);
+
+        //emit TestUint(workingColumn.lastCellIndex);
+        //emit TestStr(col.lastCellIndex);
+
+        poolTable[_tableId].lastColumnIndex=poolTable[_tableId].lastColumnIndex+1;
         return poolTable[_tableId].lastColumnIndex-1;
 
     }
