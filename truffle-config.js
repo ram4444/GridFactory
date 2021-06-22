@@ -91,7 +91,10 @@ module.exports = {
       host: "127.0.0.1",
       port: 7545,
       network_id: "5777",
-      from: '0x14348a30F84705b2b27b962Ea1a92aaD8a1baF92',
+      // ----Fixed Local Chain----
+      from: '0x61e7C70e27ea354BFde680225cce111A1514E3A0',
+      // ----Quickstart Chain----
+      //from: '0x4ea6a379963F9c82adcF46C0Bf6DD02ba2849B06',
       gas: 3000023
     },
     // Configuration for mainnet

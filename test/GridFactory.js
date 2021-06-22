@@ -276,7 +276,7 @@ contract("GridFactory", (accounts) => {
         console.log("----------------//debug result5------------------");
     })
 
-    it("should create a table, 2 column and assign some cells, returning the the whole table", async () => {
+    xit("should create a table, 2 column and assign some cells, returning the the whole table", async () => {
         // Create a table
         const result = await contractInstance._createTable(tableNames[0], alice, {from: alice});
         expect(result.receipt.status).to.equal(true);
