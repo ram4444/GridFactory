@@ -109,7 +109,7 @@ contract GridFactory {
     enum Constraint{ NONE, UNIQ }
     //FreshJuiceSize constant defaultChoice = FreshJuiceSize.MEDIUM;
 
-    
+    /* Remove
     function _testEmitUint(uint _value) public returns (string memory _test) {
         emit TestUint("test",_value);
         return "OK";
@@ -118,6 +118,7 @@ contract GridFactory {
     function _testcallExternal(string memory _value) public returns (string memory _test) {
         return _value;
     }
+    */
 
     // Table-----------------------------------------------------------------------
     

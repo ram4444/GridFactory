@@ -29,6 +29,18 @@ const { join } = require('path')
 
 // Set your own mnemonic here
 const mnemonic = "YOUR_MNEMONIC";
+const mnem_rinkeby = "float token canyon scan minimum first round nature bird apart drill casual";
+const mnem_ganache = "bacon win coyote foot drama few reduce subway brain display tooth ketchup";
+
+
+// Address
+const addr_local1   = '0xfb8aeBB3bC342Ee8D9A16C9062d5E942E9B23817'
+const addr_local2   = '0x9433f6A41dbb91e909688bCEE876d17a015B4a23'
+const addr_rinkeby_mycrypto = '0x7104F1aDf1224611b7c3831BfeEe591e42e48858'
+const addr_rinkeby_key      = '0x61e7C70e27ea354BFde680225cce111A1514E3A0'
+
+// infura project_ID
+const projId_test = '139a076676e1447094981c79ac0b6acc'
 
 //function getLoomProviderWithPrivateKey (privateKeyPath, chainId, writeUrl, readUrl) {
 //  const privateKey = readFileSync(privateKeyPath, 'utf-8');
@@ -92,7 +104,7 @@ module.exports = {
       port: 7545,
       network_id: "5777",
       // ----Fixed Local Chain----
-      from: '0x61e7C70e27ea354BFde680225cce111A1514E3A0',
+      from: addr_local1,
       // ----Quickstart Chain----
       //from: '0x4ea6a379963F9c82adcF46C0Bf6DD02ba2849B06',
       gas: 3000023
@@ -101,6 +113,7 @@ module.exports = {
     mainnet: {
       provider: function () {
         // Setting the provider with the Infura Rinkeby address and Token
+        new HDWalletProvider()
         return new HDWalletProvider(mnemonic, "https://mainnet.infura.io/v3/YOUR_TOKEN")
       },
       network_id: "1"
@@ -110,7 +123,8 @@ module.exports = {
       // Special function to setup the provider
       provider: function () {
         // Setting the provider with the Infura Rinkeby address and Token
-        return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/YOUR_TOKEN")
+        from: addr_rinkeby_mycrypto
+        return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/139a076676e1447094981c79ac0b6acc")
       },
       // Network id is 4 for Rinkeby
       network_id: 4
