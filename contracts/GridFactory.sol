@@ -6,26 +6,12 @@ pragma experimental ABIEncoderV2;
 
 contract GridFactory {
 
-    //uint[] arr_cell_columnId;
-    //uint[] arr_cell_cellId;
-
-    //uint[] arr_column_tableId;
-    //uint[] arr_column_columnId;
-
     uint[] arr_table_tableId;
     address[] arr_table_ownerAddr;
 
     mapping(uint=>table) public poolTable;          // TableId:  Table
     //mapping(uint=>column) public poolColumn;    // ColumnId: column
     //mapping(uint=>cell) public columnCell;              
-
-    /*
-    arr_table_tableId   [table1,table2]
-    arr_table_ownerAddr [owner1,owner2]
-
-    arr_column_tableId   [table1,table1.................]
-    arr_column_columnId  [col1,  col2]
-    */
 
     /* Column Function
     where (column) 
@@ -37,8 +23,6 @@ contract GridFactory {
         int:    notEqual
         int:    bigger smaller
     */
-    
-
 
     // Struct ---------------------------------------------------------------------
 
@@ -86,11 +70,6 @@ contract GridFactory {
     event ColumnList(column[] _columnList);
     event Column(column _column);
     //event TableColumnCellList(column[] _columnList);
-    event TestUint(string _desc, uint _value);
-    event TestStr(string _desc, string _value);
-    //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
-    //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
-    //event Deposit(address indexed _from, bytes32 indexed _id, uint _value);
 
     bool private initialized;
     function initialize() public {
@@ -107,18 +86,7 @@ contract GridFactory {
 
     enum DataType{ STRING, DEC, INT, TIMESTAMP, BYTE, BOOL, ADDR }
     enum Constraint{ NONE, UNIQ }
-    //FreshJuiceSize constant defaultChoice = FreshJuiceSize.MEDIUM;
 
-    /* Remove
-    function _testEmitUint(uint _value) public returns (string memory _test) {
-        emit TestUint("test",_value);
-        return "OK";
-    }
-
-    function _testcallExternal(string memory _value) public returns (string memory _test) {
-        return _value;
-    }
-    */
 
     // Table-----------------------------------------------------------------------
     
@@ -209,28 +177,12 @@ contract GridFactory {
         
         
         poolTable[_tableId].columnNameList.push(_columnName);
-
-        // Methcd 1: Directly assign by =
         
         workingColumn.lastCellIndex=0;
         workingColumn.name=_columnName;
         workingColumn.datatype=_dataType;
         workingColumn.constraint=_constraint;
         column storage col = workingColumn;
-        
-
-        // Method 2: New a Struct
-        /*
-        //dummyCellList = cell[]();
-        workingColumn = column(
-            _columnName,
-            _dataType,
-            _constraint,
-            dummyCellList,
-            0
-        );
-        column memory col = workingColumn;
-        */
 
         // Assign Column to Table
         poolTable[_tableId].columnList.push(col);
@@ -239,25 +191,6 @@ contract GridFactory {
         //poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].name=_columnName;
         //poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].datatype=_dataType;
         //poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex].constraint=_constraint;
-        
-        // Method2
-        /*
-        //cell storage cel = cell("dummy");
-        cell[] storage list;
-        //list.push(cel);
-
-        //column storage col = mCol;
-
-        poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex]=column(
-            _columnName,
-            _dataType,
-            _constraint,
-            list,
-            0);
-        */
-
-        
-        
         
         // ALL correct for method 1
         emit ColumnCreated(
@@ -271,9 +204,6 @@ contract GridFactory {
         emit Column(poolTable[_tableId].columnList[poolTable[_tableId].lastColumnIndex]);
 
         emit ColumnList(poolTable[_tableId].columnList);
-
-        //emit TestUint(workingColumn.lastCellIndex);
-        //emit TestStr(col.lastCellIndex);
 
         poolTable[_tableId].lastColumnIndex=poolTable[_tableId].lastColumnIndex+1;
         return poolTable[_tableId].lastColumnIndex-1;
